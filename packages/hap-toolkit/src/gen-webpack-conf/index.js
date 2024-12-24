@@ -33,7 +33,13 @@ import {
   checkBabelModulesExists
 } from './helpers'
 
-import { validateProject, validateManifest, validateSitemap, validateSkeleton, validateCardSize } from './validate'
+import {
+  validateProject,
+  validateManifest,
+  validateSitemap,
+  validateSkeleton,
+  validateCardSize
+} from './validate'
 import { postHook as idePostHook } from './ide.config'
 
 const { PACKAGER_BUILD_PROGRESS } = eventBus

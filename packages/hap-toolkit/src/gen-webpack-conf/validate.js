@@ -276,16 +276,16 @@ export function validateSkeleton(src, manifest) {
  */
 export function validateCardSize(src, manifest) {
   // 获取卡片配置的路由
-  const widgetsConfig = manifest.router.widgets;
-  if(widgetsConfig) {
-    const validateSizeRange = ['1','2','4','8','FULL','AUTO'];
-    const keys = Object.keys(widgetsConfig);
+  const widgetsConfig = manifest.router.widgets
+  if (widgetsConfig) {
+    const validateSizeRange = ['1', '2', '4', '8', 'FULL', 'AUTO']
+    const keys = Object.keys(widgetsConfig)
     keys.forEach((widgetKey, index) => {
       // 将size字段的x处理拆分
-      if(widgetsConfig[widgetKey]['size']) {
-        const sizeArr = widgetsConfig[widgetKey]['size'].join(',').replace(/x/g,',').split(',');
+      if (widgetsConfig[widgetKey]['size']) {
+        const sizeArr = widgetsConfig[widgetKey]['size'].join(',').replace(/x/g, ',').split(',')
         sizeArr.forEach((size) => {
-          if(!validateSizeRange.includes(size)) {
+          if (!validateSizeRange.includes(size)) {
             colorconsole.throw(
               `manifest.json配置的卡片 ${widgetKey} 的size不合规范,长宽都要在['1','2','4','8','FULL','AUTO']范围内`
             )
@@ -294,5 +294,4 @@ export function validateCardSize(src, manifest) {
       }
     })
   }
- 
 }
