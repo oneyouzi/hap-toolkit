@@ -102,9 +102,15 @@ function genCheckboxModel(node, attrName, value, output) {
       ${expValue} = checked ? ${trueValueBinding} : ${falseValueBinding}
     }`
 
-  addAttr(output.result, attrName, eval(`(function() {${attrCheckedCode}})`))
-  addHandler(output.result, 'change', eval(`(function(evt) {${eventChangeCode}})`))
-
+  const isNewJSCard = output.isNewJSCard
+  if (isNewJSCard) {
+    addAttr(output.result, attrName, `(function() {${attrCheckedCode}})`)
+    addAttr(output.result, attrName + 'Raw', value)
+    addHandler(output.result, 'change', `function(evt) {${eventChangeCode}}`)
+  } else {
+    addAttr(output.result, attrName, eval(`(function() {${attrCheckedCode}})`))
+    addHandler(output.result, 'change', eval(`(function(evt) {${eventChangeCode}})`))
+  }
   return {
     attr: { checked: attrCheckedCode },
     events: { change: eventChangeCode }
@@ -125,8 +131,15 @@ function genRadioModel(node, attrName, value, output) {
   const attrCheckedCode = `return ${exp(value, false)} === ${valueBinding}`
   const eventChangeCode = `${exp(value, false)} = ${valueBinding}`
 
-  addAttr(output.result, attrName, eval(`(function() {${attrCheckedCode}})`))
-  addHandler(output.result, 'change', eval(`(function(evt) {${eventChangeCode}})`))
+  const isNewJSCard = output.isNewJSCard
+  if (isNewJSCard) {
+    addAttr(output.result, attrName, `(function() {${attrCheckedCode}})`)
+    addAttr(output.result, attrName + 'Raw', value)
+    addHandler(output.result, 'change', `function(evt) {${eventChangeCode}}`)
+  } else {
+    addAttr(output.result, attrName, eval(`(function() {${attrCheckedCode}})`))
+    addHandler(output.result, 'change', eval(`(function(evt) {${eventChangeCode}})`))
+  }
 
   return {
     attr: { checked: attrCheckedCode },
@@ -140,11 +153,16 @@ function genRadioModel(node, attrName, value, output) {
  * @param {object} output 构建的输出结果
  */
 function genSelectModel(value, output) {
-  addHandler(
-    output.result,
-    'change',
-    eval(`(function(evt) { ${exp(value, false)} = evt.newValue})`)
-  )
+  const isNewJSCard = output.isNewJSCard
+  if (isNewJSCard) {
+    addHandler(output.result, 'change', `function(evt) { ${exp(value, false)} = evt.newValue}`)
+  } else {
+    addHandler(
+      output.result,
+      'change',
+      eval(`(function(evt) { ${exp(value, false)} = evt.newValue})`)
+    )
+  }
 }
 
 /**
@@ -156,10 +174,16 @@ function genSelectModel(value, output) {
  */
 function genDefaultModel(attrName, value, output) {
   const eventChangeCode = `${exp(value, false)} = evt.target.value`
-
-  addAttr(output.result, attrName, exp(value))
-  addHandler(output.result, 'change', eval(`(function(evt) {${eventChangeCode}})`))
-
+  const isNewJSCard = output.isNewJSCard
+  const isLite = output.isLite
+  if (isNewJSCard) {
+    addAttr(output.result, attrName, exp(value, true, isLite, isNewJSCard))
+    addAttr(output.result, attrName + 'Raw', value)
+    addHandler(output.result, 'change', `function(evt) {${eventChangeCode}}`)
+  } else {
+    addAttr(output.result, attrName, exp(value))
+    addHandler(output.result, 'change', eval(`(function(evt) {${eventChangeCode}})`))
+  }
   return { events: { change: eventChangeCode } }
 }
 
@@ -176,12 +200,21 @@ function genComponentModel(node, attrName, value, output, locationInfo, options)
   // 自定义组件model指令绑定的属性，依然作为普通属性处理
   validator.checkAttr(attrName, value, output, node.tagName, locationInfo, options)
 
-  // 为自定义组件绑定update:${attrName}事件，接收组件内部emit的update:${attrName}事件
-  addHandler(
-    output.result,
-    `update:${attrName}`,
-    eval(`(function(evt) { ${exp(value, false)} = evt.detail})`)
-  )
+  const isNewJSCard = output.isNewJSCard
+  if (isNewJSCard) {
+    addHandler(
+      output.result,
+      `update:${attrName}`,
+      `function(evt) { ${exp(value, false)} = evt.detail}`
+    )
+  } else {
+    // 为自定义组件绑定update:${attrName}事件，接收组件内部emit的update:${attrName}事件
+    addHandler(
+      output.result,
+      `update:${attrName}`,
+      eval(`(function(evt) { ${exp(value, false)} = evt.detail})`)
+    )
+  }
 }
 
 /**
@@ -196,40 +229,76 @@ function genDynamicModel(node, attrName, value, output, expType) {
   const checkboxCode = genCheckboxModel(node, attrName, value, output)
   const radioCode = genRadioModel(node, attrName, value, output)
   const textCode = genDefaultModel(attrName, value, output)
+  const isNewJSCard = output.isNewJSCard
+  const isLite = output.isLite
+  if (isNewJSCard) {
+    addAttr(output.result, attrName, exp(value, true, isLite, isNewJSCard))
+    addAttr(output.result, attrName + 'Raw', value)
 
-  addAttr(output.result, attrName, exp(value))
+    addAttr(
+      output.result,
+      'checked',
+      `(function() { 
+        if (${expType} === 'checkbox') {
+          ${checkboxCode.attr.checked}
+        } else if (${expType} === 'radio') {
+          ${radioCode.attr.checked}
+        } else {
+          return false
+        }
+      })
+    `
+    )
 
-  addAttr(
-    output.result,
-    'checked',
-    eval(`
-    (function() { 
-      if (${expType} === 'checkbox') {
-        ${checkboxCode.attr.checked}
-      } else if (${expType} === 'radio') {
-        ${radioCode.attr.checked}
-      } else {
-        return false
-      }
-    })
-  `)
-  )
+    addAttr(output.result, 'checkedRaw', value)
+    addHandler(
+      output.result,
+      'change',
+      `function(evt) {
+        if (${expType} === 'checkbox') {
+          ${checkboxCode.events.change}
+        } else if (${expType} === 'radio') {
+          ${radioCode.events.change}
+        } else {
+          ${textCode.events.change}
+        }
+      }`
+    )
+  } else {
+    addAttr(output.result, attrName, exp(value))
 
-  addHandler(
-    output.result,
-    'change',
-    eval(`
-    (function(evt) {
-      if (${expType} === 'checkbox') {
-        ${checkboxCode.events.change}
-      } else if (${expType} === 'radio') {
-        ${radioCode.events.change}
-      } else {
-        ${textCode.events.change}
-      }
-    })
-  `)
-  )
+    addAttr(
+      output.result,
+      'checked',
+      eval(`
+      (function() { 
+        if (${expType} === 'checkbox') {
+          ${checkboxCode.attr.checked}
+        } else if (${expType} === 'radio') {
+          ${radioCode.attr.checked}
+        } else {
+          return false
+        }
+      })
+    `)
+    )
+
+    addHandler(
+      output.result,
+      'change',
+      eval(`
+      (function(evt) {
+        if (${expType} === 'checkbox') {
+          ${checkboxCode.events.change}
+        } else if (${expType} === 'radio') {
+          ${radioCode.events.change}
+        } else {
+          ${textCode.events.change}
+        }
+      })
+    `)
+    )
+  }
 }
 
 /**
