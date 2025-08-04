@@ -94,7 +94,7 @@
       }
     </script>
     <script type="text/javascript">
-      if(`{{devtoolUrl}}`) {
+      if (`{{devtoolUrl}}`) {
         document.write('<script src="{{devtoolUrl}}">\x3C/script>')
       }
     </script>
@@ -108,7 +108,7 @@
         Hap.init({
           base,
           type,
-          'idePlatform':`{{devtoolUrl}}` ? 'extensionOnline': undefined
+          idePlatform: `{{devtoolUrl}}` ? 'extensionOnline' : undefined
         })
       })()
     </script>
