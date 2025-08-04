@@ -87,10 +87,15 @@
     </style>
     <script src="hap-preview://index.js"></script>
     <!-- https://statres.quickapp.cn/quickapp/ide/web.js -->
-    <script src="{{webJsUrl}}"></script>
+    <script src="http://localhost:3001/web.js"></script>
     <script type="text/javascript">
       if (!window.Hap) {
         document.write('<script src="/preview-static/web.js">\x3C/script>')
+      }
+    </script>
+    <script type="text/javascript">
+      if(`{{devtoolUrl}}`) {
+        document.write('<script src="{{devtoolUrl}}">\x3C/script>')
       }
     </script>
     <script type="text/javascript">
@@ -102,7 +107,8 @@
         var routeName = '{{ routeName }}'
         Hap.init({
           base,
-          type
+          type,
+          'idePlatform':`{{devtoolUrl}}` ? 'extensionOnline': undefined
         })
       })()
     </script>
@@ -114,7 +120,7 @@
       <p>编译可能存在异常</p>
     </div>
     <script type="text/javascript">
-      if ({{ scriptNotFound }}) {
+      if (`{{ scriptNotFound }}`) {
         // TODO loading
         setTimeout(() => {
           var el = document.getElementById('scriptNotFound')
