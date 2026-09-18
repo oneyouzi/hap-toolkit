@@ -46,19 +46,19 @@ export function trackDebug(message, ...tags) {
 
 /**
  * 判断当前工程是在哪一个ide里面打开的
- * @returns {string} 'vscode' | 'quickapp-ide' | 'cursor' | 'jetbrains' | 'terminal' | 'iterm' | 'other' 
+ * @returns {string} 'vscode' | 'quickapp-ide' | 'cursor' | 'jetbrains' | 'terminal' | 'iterm' | 'other'
  */
 export function getIDE(options) {
-  const env = process.env;
-  if(options.originType === 'quickapp-ide' || env.TERM_PROGRAM === 'quick-app-ide') {
-    return 'quickapp-ide';
+  const env = process.env
+  if (options.originType === 'quickapp-ide' || env.TERM_PROGRAM === 'quick-app-ide') {
+    return 'quickapp-ide'
   }
   // 使用环境变量判断是在cursor里面打开的
   if (
     (env.VSCODE_GIT_ASKPASS_NODE && env.VSCODE_GIT_ASKPASS_NODE.includes('cursor')) ||
     Object.keys(env).some((k) => k.startsWith('CURSOR_') && k !== '__CURSOR_SANDBOX_ENV_RESTORE')
   ) {
-    return 'cursor';
+    return 'cursor'
   }
   // VS Code / 多数 VS Code 系编辑器
   if (env.TERM_PROGRAM === 'vscode') {
@@ -74,6 +74,6 @@ export function getIDE(options) {
   return 'other'
 }
 export function trackIDE(options) {
-  const ide = getIDE(options);
-  trackDebug(eventAlias.h_ide, { IDE: ide });
+  const ide = getIDE(options)
+  trackDebug(eventAlias.h_ide, { IDE: ide })
 }

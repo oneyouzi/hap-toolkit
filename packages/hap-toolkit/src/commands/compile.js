@@ -89,7 +89,7 @@ export function compile(platform, mode, watch, options = {}) {
     }
     if (!isTrackedIDEInfo) {
       // 没有上报过使用的哪个ide，则上报
-      trackIDE(options);
+      trackIDE(options)
       isTrackedIDEInfo = true
     }
     try {
