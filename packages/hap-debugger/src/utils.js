@@ -7,7 +7,10 @@ import chromeLauncher from 'chrome-simple-launcher'
 import * as Sentry from '@sentry/node'
 
 const DSN = `https://4cdd368e441d464b87ac1a83d4d7ae12@sentry.quickapp.cn/2`
-Sentry.init({ dsn: DSN })
+const isTestEnv = !!process.env.JEST_WORKER_ID || process.env.NODE_ENV === 'test'
+if (!isTestEnv) {
+  Sentry.init({ dsn: DSN })
+}
 
 /**
  * 开启一个chrome进程
@@ -48,7 +51,7 @@ export function trackDebug(message, ...tags) {
  * 判断toolkit在哪个编辑器编译工程
  * @returns {string} 'vscode' | 'quickapp-ide' | 'cursor' | 'jetbrains' | 'terminal' | 'iterm' | 'other'
  */
-export function getIDE(options) {
+export function getIDE(options = {}) {
   const env = process.env
   if (options.originType === 'quickapp-ide' || env.TERM_PROGRAM === 'quick-app-ide') {
     return 'quickapp-ide'
@@ -74,6 +77,10 @@ export function getIDE(options) {
   return 'other'
 }
 export function trackIDE(options) {
+  // 单元测试环境不上报，避免 Sentry 网络请求拖慢/干扰测试
+  if (isTestEnv) {
+    return
+  }
   const ide = getIDE(options)
   trackDebug(eventAlias.h_ide, { IDE: ide })
 }
