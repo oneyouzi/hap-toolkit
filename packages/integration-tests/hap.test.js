@@ -161,7 +161,18 @@ describe('hap-toolkit', () => {
         ],
         { cwd: targetdir }
       )
-      await del([targetdir], { force: true })
+      // Windows 上 server 子进程释放文件句柄需要一点时间
+      for (let i = 0; i < 5; i++) {
+        try {
+          await del([targetdir], { force: true })
+          break
+        } catch (err) {
+          if (!['EBUSY', 'ENOTEMPTY', 'EPERM'].includes(err.code) || i === 4) {
+            throw err
+          }
+          await new Promise((resolve) => setTimeout(resolve, 500))
+        }
+      }
     },
     30 * 60 * 1000
   )
