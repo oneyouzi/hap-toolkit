@@ -163,9 +163,9 @@ describe('测试compile', () => {
       expect(normalizeSnapshotPaths(json.assets.map((a) => a.name))).toMatchSnapshot('assets list')
       // eg. '\u001B[4mUnicorn\u001B[0m' => 'Unicorn'
       const output = stripAnsi(outputs.join('\n'))
-      expect(
-        wipeDynamic(output, [[/大小为 \d+ KB/g, '大小为 <SIZE> KB']])
-      ).toMatchSnapshot('outputs')
+      expect(wipeDynamic(output, [[/大小为 \d+ KB/g, '大小为 <SIZE> KB']])).toMatchSnapshot(
+        'outputs'
+      )
     },
     5 * 60 * 1000
   )
