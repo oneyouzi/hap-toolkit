@@ -45,7 +45,7 @@ export function trackDebug(message, ...tags) {
 }
 
 /**
- * 判断当前工程是在哪一个ide里面打开的
+ * 判断toolkit在哪个编辑器编译工程
  * @returns {string} 'vscode' | 'quickapp-ide' | 'cursor' | 'jetbrains' | 'terminal' | 'iterm' | 'other'
  */
 export function getIDE(options) {
@@ -55,7 +55,7 @@ export function getIDE(options) {
   }
   // 使用环境变量判断是在cursor里面打开的
   if (
-    (env.VSCODE_GIT_ASKPASS_NODE && env.VSCODE_GIT_ASKPASS_NODE.includes('cursor')) ||
+    (env.VSCODE_GIT_ASKPASS_NODE && env.VSCODE_GIT_ASKPASS_NODE.toLowerCase().includes('cursor')) ||
     Object.keys(env).some((k) => k.startsWith('CURSOR_') && k !== '__CURSOR_SANDBOX_ENV_RESTORE')
   ) {
     return 'cursor'
