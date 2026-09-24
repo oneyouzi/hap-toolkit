@@ -269,7 +269,8 @@ function normalizeWinPathSeps(str) {
   let prev
   do {
     prev = str
-    str = str.replace(/([A-Za-z0-9_.-])\\+([A-Za-z0-9_.-])/g, '$1/$2')
+   //  str = str.replace(/([A-Za-z0-9_.-])\\+([A-Za-z0-9_.-])/g, '$1/$2')
+    str = str.replace(/([A-Za-z0-9_.-])\\{2,}([A-Za-z0-9_.-])/g, '$1/$2')
   } while (str !== prev)
   return str
 }

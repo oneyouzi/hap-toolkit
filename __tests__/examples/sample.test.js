@@ -178,8 +178,14 @@ describe('hap-toolkit', () => {
       )
       await Promises
 
-      const files = execa.sync('git', ['ls-files', '-m']).stdout
-      expect(!files.match(`build-backup`)).toBeTruthy()
+      // git ls-files -m 会把仅 CRLF/LF 差异也算进去，Windows 上会误报
+      const diff = execa.sync('git', [
+        'diff',
+        '--ignore-cr-at-eol',
+        '--',
+        path.relative(process.cwd(), buildBackup)
+      ]).stdout
+      expect(diff).toBe('')
     },
     6 * 60 * 1000
   )
