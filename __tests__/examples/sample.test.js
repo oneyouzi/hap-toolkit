@@ -178,11 +178,8 @@ describe('hap-toolkit', () => {
       )
       await Promises
 
-      // Windows 编译产物与仓库中的 Linux 备份无法逐字节对齐（换行/license 头等）
-      if (process.platform !== 'win32') {
-        const files = execa.sync('git', ['ls-files', '-m']).stdout
-        expect(!files.match(`build-backup`)).toBeTruthy()
-      }
+      const files = execa.sync('git', ['ls-files', '-m']).stdout
+      expect(!files.match(`build-backup`)).toBeTruthy()
     },
     6 * 60 * 1000
   )
